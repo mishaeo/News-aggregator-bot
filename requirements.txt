@@ -2,3 +2,4 @@ aiogram
 httpx
 python-dotenv
 aiosqlite
+requests

@@ -1,3 +1,4 @@
+from typing import Dict
 import aiosqlite
 
 DB_NAME = "database.db"
@@ -32,21 +33,24 @@ async def get_user_by_id(telegram_id: int):
         cursor = await db.execute("SELECT * FROM users WHERE telegram_id = ?", (telegram_id,))
         return await cursor.fetchone()
 
-async def get_user_profile(telegram_id: int) -> str:
+async def get_user_profile(telegram_id: int) -> Dict[str, str]:
     async with aiosqlite.connect(DB_NAME) as db:
         cursor = await db.execute(
             "SELECT country, category, language FROM users WHERE telegram_id = ?", (telegram_id,)
         )
         row = await cursor.fetchone()
-        if row:
-            country, category, language = row
-            return (
-                f"📋 Your Profile:\n"
-                f"🌍 Country: {country}\n"
-                f"📂 Category: {category}\n"
-                f"🗣 Language: {language}"
-            )
-        else:
-            return "⚠️ You are not registered yet. Use /setting to register."
+
+    if row:
+        country, category, language = row
+        return {
+            "country": country,
+            "category": category,
+            "language": language
+        }
+    else:
+        return {
+            "error": "⚠️ You are not registered yet. Use /registration to register."
+        }
+
 
 
