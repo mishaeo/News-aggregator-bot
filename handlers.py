@@ -1,19 +1,18 @@
-import requests
-import asyncio
-from functools import partial
-
 from aiogram import Router, F
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-
+from deep_translator import GoogleTranslator
+from newspaper import build
 
 import keyboards as kb
 from database import create_or_update_user, get_user_profile
-from config import API_KEY, URL
 
 router = Router()
+
+class number_of_articles(StatesGroup):
+    quantity = State()
 
 class RegistrationState(StatesGroup):
     telegram_id = State()
@@ -98,3 +97,81 @@ async def handler_select_of_language(callback: CallbackQuery, state: FSMContext)
     )
 
     await state.clear()
+
+
+@router.message(Command('news'))
+async def handler_news(message: Message,  state: FSMContext):
+    await message.answer('Please enter the number of articles to view!')
+
+    await state.set_state(number_of_articles.quantity)
+
+
+
+
+@router.message(number_of_articles.quantity, F.text.regexp(r'^\d+$'))
+async def handler_news_outlet(message: Message,  state: FSMContext):
+
+    await message.answer("🔍 Команда /news получена, загружаю новости...")
+
+    telegram_id = message.from_user.id
+    profile = await get_user_profile(telegram_id)
+
+    number = int(message.text)
+
+    translator = GoogleTranslator(source='auto', target=profile['language'])
+
+    news_url = ''
+
+    if "error" in profile:
+        await message.answer(profile["error"])
+    else:
+        if profile['country'] == 'ru':
+            if profile['category'] == 'politics':
+                news_url = build('https://ria.ru/politics/', memoize_articles=False)
+            elif profile['category'] == 'economics':
+                news_url = build('https://www.rbc.ru/economics/', memoize_articles=False)
+            elif profile['category'] == 'technology':
+                news_url = build('https://www.cnews.ru/news/top/', memoize_articles=False)
+            elif profile['category'] == 'general news':
+                news_url = build('https://tass.ru/', memoize_articles=False)
+            else:
+                await message.answer('News in this category is not available')
+        elif profile['country'] == 'us':
+            if profile['category'] == 'politics':
+                news_url = build('https://www.cnn.com/politics', memoize_articles=False)
+            elif profile['category'] == 'economics':
+                news_url = build('https://www.cnbc.com/economy/', memoize_articles=False)
+            elif profile['category'] == 'technology':
+                news_url = build('https://www.cnet.com/tech/', memoize_articles=False)
+            elif profile['category'] == 'general news':
+                news_url = build('https://www.nbcnews.com/news/us-news', memoize_articles=False)
+            else:
+                await message.answer('News in this category is not available')
+        elif profile['country'] == 'de':
+            if profile['category'] == 'politics':
+                news_url = build('https://www.spiegel.de/politik/', memoize_articles=False)
+            elif profile['category'] == 'economics':
+                news_url = build('https://www.handelsblatt.com/wirtschaft/', memoize_articles=False)
+            elif profile['category'] == 'technology':
+                news_url = build('https://www.heise.de/news/', memoize_articles=False)
+            elif profile['category'] == 'general news':
+                news_url = build('https://www.dw.com/en/top-stories/s-9097', memoize_articles=False)
+            else:
+                await message.answer('News in this category is not available')
+        else:
+            await message.answer('News for this country is not available')
+
+    await message.answer(f"Найдено {len(news_url.articles)} статей")
+
+    for i, article in enumerate(news_url.articles[:number], 1):
+        try:
+            article.download()
+            article.parse()
+
+            translated_title = translator.translate(article.title)
+            translated_text = translator.translate(article.text[:1000])
+
+            await message.answer(f"\n{i}. {translated_title} — {article.source_url}\n")
+            await message.answer(translated_text[:500] + '...')
+        except Exception as e:
+            await message.answer(f"{i}. Ошибка: {e}")

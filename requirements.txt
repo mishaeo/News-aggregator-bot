@@ -1,5 +1,6 @@
 aiogram
-httpx
 python-dotenv
+lxml_html_clean
 aiosqlite
-requests
+deep_translator
+newspaper3k
