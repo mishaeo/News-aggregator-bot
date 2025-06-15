@@ -12,17 +12,17 @@ category_button = ReplyKeyboardMarkup(
 
 country_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text="Россия", callback_data="ru"),
-        InlineKeyboardButton(text="Германия", callback_data="de"),
-        InlineKeyboardButton(text="США", callback_data="us")
+        InlineKeyboardButton(text="Russia", callback_data="ru"),
+        InlineKeyboardButton(text="Germany", callback_data="de"),
+        InlineKeyboardButton(text="USA", callback_data="us")
     ]
 ])
 
 language_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text="Русский", callback_data="ru"),
-        InlineKeyboardButton(text="Немецкий", callback_data="de"),
-        InlineKeyboardButton(text="английский", callback_data="en")
+        InlineKeyboardButton(text="Russian", callback_data="ru"),
+        InlineKeyboardButton(text="German", callback_data="de"),
+        InlineKeyboardButton(text="English", callback_data="en")
     ]
 ])
 

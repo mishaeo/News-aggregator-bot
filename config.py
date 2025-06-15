@@ -10,4 +10,4 @@ API_KEY = os.getenv("NEWSAPI_KEY")
 URL = os.getenv("URL")
 
 if not BOT_TOKEN:
-    raise ValueError("BOT_TOKEN не найден в .env файле!")
+    raise ValueError("BOT_TOKEN not found in .env file!")

@@ -43,11 +43,11 @@ async def handler_profile(message: Message):
 async def handler_help(message: Message):
     await message.answer(
         "ℹ️ <b>Help Menu</b>\n\n"
-        "🧾 <b>/start</b> — Начать работу с ботом\n"
-        "⚙️ <b>/registration</b> — Пройти регистрацию или изменить настройки\n"
-        "👤 <b>/profile</b> — Посмотреть ваш текущий профиль\n"
-        "📰 <b>/news</b> — Последние новости\n"
-        "❓ <b>/help</b> — Показать это меню помощи",
+        "🧾 <b>/start</b> — Start interacting with the bot\n"
+        "⚙️ <b>/registration</b> — Register or update your settings\n"
+        "👤 <b>/profile</b> — View your current profile\n"
+        "📰 <b>/news</b> — Latest news\n"
+        "❓ <b>/help</b> — Show this help menu",
         parse_mode="HTML"
     )
 
@@ -105,13 +105,10 @@ async def handler_news(message: Message,  state: FSMContext):
 
     await state.set_state(number_of_articles.quantity)
 
-
-
-
 @router.message(number_of_articles.quantity, F.text.regexp(r'^\d+$'))
 async def handler_news_outlet(message: Message,  state: FSMContext):
 
-    await message.answer("🔍 Команда /news получена, загружаю новости...")
+    await message.answer("🔍 /news command received, loading news...")
 
     telegram_id = message.from_user.id
     profile = await get_user_profile(telegram_id)
@@ -161,7 +158,7 @@ async def handler_news_outlet(message: Message,  state: FSMContext):
         else:
             await message.answer('News for this country is not available')
 
-    await message.answer(f"Найдено {len(news_url.articles)} статей")
+    await message.answer(f"Found {len(news_url.articles)} articles")
 
     for i, article in enumerate(news_url.articles[:number], 1):
         try:
@@ -174,4 +171,5 @@ async def handler_news_outlet(message: Message,  state: FSMContext):
             await message.answer(f"\n{i}. {translated_title} — {article.source_url}\n")
             await message.answer(translated_text[:500] + '...')
         except Exception as e:
-            await message.answer(f"{i}. Ошибка: {e}")
+            await message.answer(f"{i}. Error: {e}")
+
