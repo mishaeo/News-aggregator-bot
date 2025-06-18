@@ -4,3 +4,4 @@ lxml_html_clean
 aiosqlite
 deep_translator
 newspaper3k
+requests

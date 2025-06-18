@@ -97,6 +97,7 @@ async def handler_select_of_language(callback: CallbackQuery, state: FSMContext)
     )
 
     await state.clear()
+    await callback.answer()
 
 
 @router.message(Command('news'))
